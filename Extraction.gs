@@ -10,7 +10,8 @@ Extract these fields:
     * Phone numbers, VAT numbers, postcodes, street addresses
     * Times of day (09:03 PM is not a month)
     * Table numbers, customer IDs
-  When in doubt about whether a number is a date, look for the literal word "Date" / "Dated" / month names (Jan, Feb, ...) / separators (/ - .) typical of a date. There are no future dated invoices or invoices older than 1 year from current date.
+    * There are no future dated invoices or invoices older than 1 year from current date
+  When in doubt about whether a number is a date, look for the literal word "Date" / "Dated" / month names (Jan, Feb, ...) / separators (/ - .) typical of a date.
 
 - date: the same date converted to ISO YYYY-MM-DD. Use country/locale to disambiguate DD/MM vs MM/DD:
     * United States, Canada -> MM/DD/YYYY

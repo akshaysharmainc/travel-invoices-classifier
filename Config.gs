@@ -74,21 +74,48 @@ function runAll() {
   moveClassifiedFiles();
 }
 
+/**
+ * Container-bound only: builds an "Invoice Tools" menu in the Sheet's menu
+ * bar when the Sheet opens. Has no effect in standalone mode (SpreadsheetApp.getUi()
+ * throws there, so we swallow the error).
+ */
+function onOpen() {
+  try {
+    SpreadsheetApp.getUi()
+      .createMenu('Invoice Tools')
+      .addItem('Extract invoices',           'extractInvoices')
+      .addItem('Classify invoices',          'classifyInvoices')
+      .addItem('Move + rename files',        'moveClassifiedFiles')
+      .addSeparator()
+      .addItem('Run all (extract → classify → move)', 'runAll')
+      .addSeparator()
+      .addItem('Debug: dump resolved itinerary',      'dumpResolvedItinerary')
+      .addToUi();
+  } catch (e) {
+    // Standalone mode - no UI context, ignore.
+  }
+}
+
 // =========================================================================
 // Shared Utilities
 // =========================================================================
 
 
 function getOrCreateSheet(folder) {
-  let ss;
-  const existing = folder.getFilesByName(CONFIG.SHEET_NAME);
-  if (existing.hasNext()) {
-    ss = SpreadsheetApp.open(existing.next());
-  } else {
-    ss = SpreadsheetApp.create(CONFIG.SHEET_NAME);
-    const ssFile = DriveApp.getFileById(ss.getId());
-    folder.addFile(ssFile);
-    DriveApp.getRootFolder().removeFile(ssFile);
+  // Container-bound mode: if this script is attached to a Sheet, use it.
+  // Standalone mode: getActiveSpreadsheet() returns null, so fall back to
+  // finding (or creating) the sheet by name inside the invoices folder.
+  let ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) {
+    const existing = folder.getFilesByName(CONFIG.SHEET_NAME);
+    if (existing.hasNext()) {
+      ss = SpreadsheetApp.open(existing.next());
+    } else {
+      ss = SpreadsheetApp.create(CONFIG.SHEET_NAME);
+      const ssFile = DriveApp.getFileById(ss.getId());
+      folder.addFile(ssFile);
+      DriveApp.getRootFolder().removeFile(ssFile);
+    }
   }
   const sheet = ss.getSheets()[0];
   const cur = sheet.getRange(1, 1, 1, HEADERS.length).getValues()[0];
