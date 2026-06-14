@@ -70,7 +70,10 @@ Drop new invoices into the folder, then either:
   - `runAll` — extract → classify → move, in one click.
   - `dumpResolvedItinerary` — writes a `Itinerary_Resolved` Google Doc showing exactly what itinerary text reaches the LLM (with every URL in your itinerary expanded via Jina Reader). Useful for debugging classification quality.
 
-## Sheet schema (`Invoice_Details`)
+## Sheet schema (`Invoice_Details` tab)
+
+The script always reads from and writes to a tab named **`Invoice_Details`** (auto-created on first run if missing). Any other tabs you add — notes, pivots, dashboards, summaries — are left completely alone. The tab name is set by `CONFIG.SHEET_NAME`; change it if you want a different tab name (also used as the spreadsheet filename in standalone mode).
+
 
 | Column | Notes |
 |---|---|

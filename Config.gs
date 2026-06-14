@@ -104,7 +104,7 @@ function onOpen() {
 function getOrCreateSheet(folder) {
   // Container-bound mode: if this script is attached to a Sheet, use it.
   // Standalone mode: getActiveSpreadsheet() returns null, so fall back to
-  // finding (or creating) the sheet by name inside the invoices folder.
+  // finding (or creating) the spreadsheet by name inside the invoices folder.
   let ss = SpreadsheetApp.getActiveSpreadsheet();
   if (!ss) {
     const existing = folder.getFilesByName(CONFIG.SHEET_NAME);
@@ -115,9 +115,17 @@ function getOrCreateSheet(folder) {
       const ssFile = DriveApp.getFileById(ss.getId());
       folder.addFile(ssFile);
       DriveApp.getRootFolder().removeFile(ssFile);
+      // Rename the default tab so a fresh spreadsheet ends up with a single
+      // "Invoice_Details" tab instead of a stray "Sheet1".
+      ss.getSheets()[0].setName(CONFIG.SHEET_NAME);
     }
   }
-  const sheet = ss.getSheets()[0];
+
+  // Always read/write the "Invoice_Details" TAB, regardless of which other
+  // tabs exist in the spreadsheet. Container-bound users may have other
+  // tabs (notes, pivots, dashboards) and those are left untouched.
+  let sheet = ss.getSheetByName(CONFIG.SHEET_NAME);
+  if (!sheet) sheet = ss.insertSheet(CONFIG.SHEET_NAME);
   const cur = sheet.getRange(1, 1, 1, HEADERS.length).getValues()[0];
   if (cur.join('|') !== HEADERS.join('|')) {
     sheet.getRange(1, 1, 1, HEADERS.length)
